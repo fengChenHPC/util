@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/myspace/!svn/ver/114739/idl/hc/clTemplate
+END
+test
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/myspace/!svn/ver/114739/idl/hc/clTemplate/test
+END
+main.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/myspace/!svn/ver/114672/idl/hc/clTemplate/main.cpp
+END
+Makefile
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/myspace/!svn/ver/114672/idl/hc/clTemplate/Makefile
+END
+dropoutForward.cl
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/myspace/!svn/ver/114672/idl/hc/clTemplate/dropoutForward.cl
+END

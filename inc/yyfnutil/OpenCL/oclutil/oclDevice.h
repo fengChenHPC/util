@@ -7,7 +7,7 @@
 #include <CL/cl.h>
 #endif
 
-#include "core.h"
+#include "../core.h"
 #include "oclError.h"
 
 /**
@@ -88,7 +88,7 @@ extern int oclGetDevices(cl_platform_id p, cl_device_type type, cl_uint *numDevi
 
 #define STR_Q_Info(device, info, str) {\
 	size_t len;\
-	cl_int err = clGetDeviceInfo(device, info, NULL, NULL, &len);\
+	cl_int err = clGetDeviceInfo(device, info, 0, NULL, &len);\
 	if(CL_SUCCESS != err){\
 		checkCLError(err);\
 		return -1;\
@@ -128,7 +128,7 @@ extern int listDeviceInfo(cl_device_id device){
 	STR_Q_Info(device, CL_DEVICE_EXTENSIONS, "Device Extensions : ");
 	STR_Q_Info(device, CL_DEVICE_OPENCL_C_VERSION, "OpenCL C Version : ");
 	STR_Q_Info(device, CL_DEVICE_PROFILE, "Device Profile : ");
-	V_Q_Info(device, CL_DEVICE_PROFILING_TIMER_RESOLUTION, size_t, "Timer Resolution : ", "u");
+	V_Q_Info(device, CL_DEVICE_PROFILING_TIMER_RESOLUTION, size_t, "Timer Resolution : ", "ld");
 	{ cl_device_fp_config v;
 		cl_int err = clGetDeviceInfo(device, CL_DEVICE_SINGLE_FP_CONFIG, sizeof(cl_device_fp_config), &v, NULL);
 		if(CL_SUCCESS != err){
@@ -150,7 +150,7 @@ extern int listDeviceInfo(cl_device_id device){
 	STR_Q_Info(device, CL_DEVICE_VERSION, "Device Version : ");
 	STR_Q_Info(device, CL_DRIVER_VERSION, "Driver Version : ");
 	B_Q_Info(device, CL_DEVICE_HOST_UNIFIED_MEMORY, "Unified Memory Supported : ");
-	V_Q_Info(device, CL_DEVICE_MAX_PARAMETER_SIZE, size_t, "Max Parameter Size : ", "u");
+	V_Q_Info(device, CL_DEVICE_MAX_PARAMETER_SIZE, size_t, "Max Parameter Size : ", "ld");
 
 	printf("..............Global Memory Configuration.............\n");
 	V_Q_Info(device, CL_DEVICE_MAX_MEM_ALLOC_SIZE, cl_ulong, "Max Memory Allocate Size : ", "lu");
@@ -177,11 +177,11 @@ extern int listDeviceInfo(cl_device_id device){
 
 	printf("..................Image Information...................\n");
 	B_Q_Info(device, CL_DEVICE_IMAGE_SUPPORT, "Image Supported : ");
-	V_Q_Info(device, CL_DEVICE_IMAGE2D_MAX_HEIGHT, size_t, "2D Image Max Height : ", "u");
-	V_Q_Info(device, CL_DEVICE_IMAGE2D_MAX_WIDTH, size_t, "2D Image Max Width : ", "u");
-	V_Q_Info(device, CL_DEVICE_IMAGE3D_MAX_DEPTH, size_t, "3D Image Max Depth : ", "u");
-	V_Q_Info(device, CL_DEVICE_IMAGE3D_MAX_HEIGHT, size_t, "3D Image Max Height : ", "u");
-	V_Q_Info(device, CL_DEVICE_IMAGE3D_MAX_WIDTH, size_t, "3D Image Max Width : ", "u");
+	V_Q_Info(device, CL_DEVICE_IMAGE2D_MAX_HEIGHT, size_t, "2D Image Max Height : ", "ld");
+	V_Q_Info(device, CL_DEVICE_IMAGE2D_MAX_WIDTH, size_t, "2D Image Max Width : ", "ld");
+	V_Q_Info(device, CL_DEVICE_IMAGE3D_MAX_DEPTH, size_t, "3D Image Max Depth : ", "ld");
+	V_Q_Info(device, CL_DEVICE_IMAGE3D_MAX_HEIGHT, size_t, "3D Image Max Height : ", "ld");
+	V_Q_Info(device, CL_DEVICE_IMAGE3D_MAX_WIDTH, size_t, "3D Image Max Width : ", "ld");
 	V_Q_Info(device, CL_DEVICE_MAX_READ_IMAGE_ARGS, cl_uint, "Max Read Image Args : ", "u");
 	V_Q_Info(device, CL_DEVICE_MAX_WRITE_IMAGE_ARGS, cl_uint, "Max Write Image Args : ", "u");
 	V_Q_Info(device, CL_DEVICE_MAX_SAMPLERS, cl_uint, "Max Samples : ", "u");
@@ -209,7 +209,7 @@ extern int listDeviceInfo(cl_device_id device){
 	V_Q_Info(device, CL_DEVICE_MAX_CONSTANT_BUFFER_SIZE, cl_ulong, "Max Constant Buffer Size : ", "lu");
 
 	printf("...................ND Range Information........................\n");
-	V_Q_Info(device, CL_DEVICE_MAX_WORK_GROUP_SIZE, size_t, "Max Work Group Size : ", "u");
+	V_Q_Info(device, CL_DEVICE_MAX_WORK_GROUP_SIZE, size_t, "Max Work Group Size : ", "ld");
 	V_Q_Info(device, CL_DEVICE_MAX_WORK_ITEM_DIMENSIONS, cl_uint, "Work Item Dimensions : ", "u");
 
 	{ size_t v[3];
@@ -218,7 +218,7 @@ extern int listDeviceInfo(cl_device_id device){
 			checkCLError(err);
 			return -1;
 		}
-		printf("Max Work Item size : %d %d %d\n", v[0], v[1], v[2]);
+		printf("Max Work Item size : %ld %ld %ld\n", v[0], v[1], v[2]);
 	}
 
 	printf(".....................Vector Information..................\n");

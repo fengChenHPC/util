@@ -1,11 +1,4 @@
-#ifdef __APPLE__ 
-#include <OpenCL/opencl.h> 
-#else
-#include <CL/cl.h> 
-#endif 
-
-#include "core.h"
-#include "oclutil.h"
+#include "yyfnutil.h"
 
 int main(int argc, char* argv[]){
 	int err;
@@ -49,7 +42,7 @@ int main(int argc, char* argv[]){
 
 	listContextInfo(cont);
 
-	char* source;
+	char* source = NULL;
 	size_t srcLen;
 	const char* filename = "dropoutForward.cl";
 	if(0 != getCLSource(filename, &source, &srcLen)){
@@ -59,7 +52,7 @@ int main(int argc, char* argv[]){
 		return 0;
 	}
 	
-	char *options = "-DT=float";
+	const char *options = "-DT=float";
 	cl_program program;
 	if(0 != clCreateBuildProgramWithSource(cont, source, srcLen, deviceCount, devices, options, &program)){
 		free(source);

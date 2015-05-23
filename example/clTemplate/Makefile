@@ -1,11 +1,11 @@
 CC:=g++
-DIR:=../hc_library/
-CFLAGS := -O3 -I/usr/local/cuda/include -lOpenCL -I$(DIR) 
+DIR:=../../inc/ 
+CFLAGS := -O3 -DOCL -I/usr/local/cuda/include -lOpenCL -I$(DIR)  -L/usr/local/cuda-7.0/lib64
 
 all : test
 
 test : main.cpp
-	$(CC) $(CFLAGS) $< -o $@
+	$(CC) $< -o $@ $(CFLAGS)
 
 clean:
 	rm -fr core.* .o test

@@ -17,6 +17,9 @@
 #include <string.h>
 #include <time.h>
 
+#ifdef OCL
+#include "yyfnutil/OpenCL.h"
+#endif
 
 #include "yyfnutil/CUDA.h"
 #include "yyfnutil/pictureFormat.h"

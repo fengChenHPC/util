@@ -7,7 +7,7 @@
 #include <CL/cl.h>
 #endif
 
-#include "core.h"
+#include "../core.h"
 #include "oclError.h"
 
 /**

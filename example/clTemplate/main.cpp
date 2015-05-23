@@ -1,25 +1,25 @@
-#include "yyfnutil.h"
+#include "pbl.h"
 
 int main(int argc, char* argv[]){
-	int err;
+	PBLStatus_t err;
 
 	// Get OpenCL platform count
 	cl_uint numPlatforms; 
 	cl_platform_id* platforms = NULL;
-	if(-1 == oclGetPlatforms(&numPlatforms, &platforms)){
+	if(-1 == pblOCLGetPlatforms(&numPlatforms, &platforms)){
 		printMessage("fail to obtain platforms\n");
 		return 0;
 	}
 
 	for(int i = 0; i < numPlatforms; i++){
-		listPlatformInfo(platforms[i]);
+		pblOCLListPlatformInfo(platforms[i]);
 	}
 
 	cl_platform_id p = platforms[0];
 
 	cl_uint deviceCount;
 	cl_device_id *devices = NULL;
-	if(-1 == oclGetDevices(p, CL_DEVICE_TYPE_GPU, &deviceCount, &devices)){
+	if(-1 == pblOCLGetDevices(p, CL_DEVICE_TYPE_GPU, &deviceCount, &devices)){
 		free(platforms);
 		printMessage("error\n");
 		return 0;
@@ -29,23 +29,24 @@ int main(int argc, char* argv[]){
 
 	for(int i = 0; i < deviceCount; i++){
 		printf("Device %d\n", i);
-		listDeviceInfo(devices[i]);
+		pblOCLListDeviceInfo(devices[i]);
 	}
 
 	cl_context cont;
-	if(-1 == oclCreateContextWithPlatform(p, deviceCount, devices, &cont)){
+	if(-1 == pblOCLCreateContextWithPlatform(p, deviceCount, devices, &cont)){
 		free(devices);
 		free(platforms);
 		printMessage("fail to create context\n");
 		return 0;
 	}
 
-	listContextInfo(cont);
+	pblOCLListContextInfo(cont);
 
 	char* source = NULL;
 	size_t srcLen;
 	const char* filename = "dropoutForward.cl";
-	if(0 != getCLSource(filename, &source, &srcLen)){
+    PBLStatus_t status;
+	if(status != loadFileContent(filename, &source, &srcLen)){
 		free(devices);
 		free(platforms);
 		printMessage("Fail to load Source\n");
@@ -54,7 +55,7 @@ int main(int argc, char* argv[]){
 	
 	const char *options = "-DT=float";
 	cl_program program;
-	if(0 != clCreateBuildProgramWithSource(cont, source, srcLen, deviceCount, devices, options, &program)){
+	if(0 != pblOCLCreateBuildProgramWithSource(cont, source, srcLen, deviceCount, devices, options, &program)){
 		free(source);
 		free(devices);
 		free(platforms);
@@ -63,16 +64,18 @@ int main(int argc, char* argv[]){
 	}
 
 	const char* kernelName = "dropoutForward";
-	cl_kernel kernl = clCreateKernel(program, kernelName, &err);
+	cl_kernel kernel;
+    err = pblOCLCreateKernel(program, kernelName, &kernel);
 	if(CL_SUCCESS != err){
 		free(source);
 		free(devices);
 		free(platforms);
-		checkCLError(err);
+		//checkPBLError(err);
 		return 0;
 	}
 
-	cl_command_queue commandQueue = clCreateCommandQueue(cont, devices[0], CL_QUEUE_PROFILING_ENABLE, &err);
+	cl_command_queue commandQueue;
+    err = pblOCLCreateCommandQueue(cont, devices[0], CL_QUEUE_PROFILING_ENABLE, &commandQueue);
 
 //	cl_mem buf = clCreateBuffer(cont, CL_MEM_READ_ONLY, size*sizeof(float), NULL, NULL);
 //	err = clEnqueueWriteBuffer(commandQueue, buf, CL_TRUE, 0, sizeof(float) * size, host, 0, NULL, NULL);

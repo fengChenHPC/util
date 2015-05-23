@@ -17,14 +17,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "core.h"
-
-#include "oclutil/oclError.h"
 #include "oclutil/oclProgram.h"
 #include "oclutil/oclPlatform.h"
 #include "oclutil/oclDevice.h"
 #include "oclutil/oclContext.h"
-
-#define getCLSource loadFileContent
+#include "oclutil/oclKernel.h"
+#include "oclutil/oclCommandQueue.h"
 
 #endif

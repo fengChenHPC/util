@@ -1,20 +1,12 @@
 #ifndef H_OCL_PROGRAM
 #define H_OCL_PROGRAM
 
-#ifdef __APPLE__
-#include <OpenCL/opencl.h>
-#else
-#include <CL/cl.h>
-#endif
-
 /**
  * @file
  *
  * @brief util functions for program
  *
  **/
-
-#include "oclError.h"
 
 #define checkCLBuildProgramError(err, program, numDevices, devices) {\
 	if(CL_SUCCESS != err){\
@@ -50,34 +42,26 @@
  * 	0 means success
  *
  */
-extern int clCreateBuildProgramWithSource(cl_context& cont, const char* source, size_t length, int numDevices, cl_device_id *devices, const char* options, cl_program *prog){
-	if((NULL == source) || (0 == length)) {
-		printMessage("please specify source\n");
-		return -1;
-	}
-
-	if((NULL == devices) || (0 == numDevices)) {
-		printMessage("please specify devices\n");
-		return -1;
-	}
+extern PBLStatus_t pblOCLCreateBuildProgramWithSource(cl_context& cont, const char* source, size_t length, int numDevices, cl_device_id *devices, const char* options, cl_program *prog){
+	if((NULL == source) || (0 == length) || (NULL == devices) || (0 == numDevices)) return PBL_BAD_PARAM;
 	
 	int err;
 
 	cl_program program = clCreateProgramWithSource(cont, 1, &source, &length, &err);
 	if(CL_SUCCESS != err){
 		checkCLError(err);
-		return -1;
+		return pblMapOCLErrorToPBLStatus(err);
 	}
 
 	err = clBuildProgram(program, numDevices, devices, options, NULL, NULL);                   
 	if(CL_SUCCESS != err){
 		checkCLBuildProgramError(err, program, numDevices, devices);
-		return -1;
+		return pblMapOCLErrorToPBLStatus(err);
 	}
 
 	*prog = program;
 
-	return 0;
+	return PBL_SUCCESS;
 }
 
 #endif

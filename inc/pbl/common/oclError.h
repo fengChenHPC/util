@@ -7,8 +7,6 @@
 #include <CL/cl.h>
 #endif
 
-#include "../core.h"
-
 /**
  * @file
  */

@@ -1,23 +1,6 @@
 #ifndef H_OCL_DEVICES
 #define H_OCL_DEVICES
 
-#ifdef __APPLE__
-#include <OpenCL/OpenCL.h>
-#else
-#include <CL/cl.h>
-#endif
-
-#include "../core.h"
-#include "oclError.h"
-
-/**
- * @file
- *
- * @author liuwenzhi
- * @date 2014/3/24
- *
- */
-
 /**
  * @brief get devices in platform, and allocate space for storing devices
  * @warning please free space of devices allocated in this function
@@ -32,44 +15,34 @@
  * 	-1 means fail
  *
  */
-extern int oclGetDevices(cl_platform_id p, cl_device_type type, cl_uint *numDevices, cl_device_id **devices){
-	if(NULL == numDevices || NULL != *devices){
-		printMessage("devices will be reallocate\n");
-		return -1;
-	}
+extern PBLStatus_t pblOCLGetDevices(cl_platform_id p, cl_device_type type, cl_uint *numDevices, cl_device_id **devices){
+	if(NULL == numDevices || NULL != *devices) return PBL_BAD_PARAM;
 
 	cl_uint num;
 	cl_int err = clGetDeviceIDs(p, type, 0, NULL, &num);
-	if(CL_SUCCESS != err){
-		checkCLError(err);
-		return -1;
-	}
+	if(CL_SUCCESS != err) return pblMapOCLErrorToPBLStatus(err);
 
 	*numDevices = num;
 
 	cl_device_id *did = (cl_device_id*) malloc(num*sizeof(cl_device_id));
-	if(NULL == did){
-		printMessage("Fail to allocate memory\n");
-		return -1;
-	}
+	if(NULL == did) return PBL_FAIL_TO_ALLOC;
 
 	err = clGetDeviceIDs(p, type, num, did, NULL);
 	if(CL_SUCCESS != err){
 		free(did);
-		checkCLError(err);
-		return -1;
+		return pblMapOCLErrorToPBLStatus(err);
 	}
 
 	*devices = did;
 
-	return 0;
+	return PBL_SUCCESS;
 }
 #define V_Q_Info(device, info, type, str, modifier) {\
 	type v;\
 	cl_int err = clGetDeviceInfo(device, info, sizeof(type), &v, NULL);\
 	if(CL_SUCCESS != err){\
 		checkCLError(err);\
-		return -1;\
+		return pblMapOCLErrorToPBLStatus(err);\
 	}\
 \
 	printf(str"%"modifier"\n", v);\
@@ -80,7 +53,7 @@ extern int oclGetDevices(cl_platform_id p, cl_device_type type, cl_uint *numDevi
 	cl_int err = clGetDeviceInfo(device, info, sizeof(cl_bool), &v, NULL);\
 	if(CL_SUCCESS != err){\
 		checkCLError(err);\
-		return -1;\
+		return pblMapOCLErrorToPBLStatus(err);\
 	}\
 \
 	printf(str"%s\n", v? "Yes" : "NO");\
@@ -91,14 +64,14 @@ extern int oclGetDevices(cl_platform_id p, cl_device_type type, cl_uint *numDevi
 	cl_int err = clGetDeviceInfo(device, info, 0, NULL, &len);\
 	if(CL_SUCCESS != err){\
 		checkCLError(err);\
-		return -1;\
+		return pblMapOCLErrorToPBLStatus(err);\
 	}\
 \
 	char* v = (char*) malloc(len+1);\
 	err = clGetDeviceInfo(device, info, len, v, NULL);\
 	if(CL_SUCCESS != err){\
 		checkCLError(err);\
-		return -1;\
+		return pblMapOCLErrorToPBLStatus(err);\
 	}\
 \
 	v[len] = '\0';\
@@ -117,7 +90,7 @@ extern int oclGetDevices(cl_platform_id p, cl_device_type type, cl_uint *numDevi
  * 	0 : success
  * 	-1: error
  */
-extern int listDeviceInfo(cl_device_id device){
+extern PBLStatus_t pblOCLListDeviceInfo(cl_device_id device){
 	printf("..........Device Info..............\n");
 	STR_Q_Info(device, CL_DEVICE_NAME, "Device name : ");
 	V_Q_Info(device, CL_DEVICE_ADDRESS_BITS, cl_uint, "Address Bits : ", "u");
@@ -133,7 +106,7 @@ extern int listDeviceInfo(cl_device_id device){
 		cl_int err = clGetDeviceInfo(device, CL_DEVICE_SINGLE_FP_CONFIG, sizeof(cl_device_fp_config), &v, NULL);
 		if(CL_SUCCESS != err){
 			checkCLError(err);
-			return -1;
+			return pblMapOCLErrorToPBLStatus(err);
 		}
 	
 		if(v & CL_FP_DENORM){printf("Device Support Denorm Single Float \n");}
@@ -162,7 +135,7 @@ extern int listDeviceInfo(cl_device_id device){
 		cl_int err = clGetDeviceInfo(device, CL_DEVICE_GLOBAL_MEM_CACHE_TYPE, sizeof(cl_device_mem_cache_type), &v, NULL);
 		if(CL_SUCCESS != err){
 			checkCLError(err);
-			return -1;
+			return pblMapOCLErrorToPBLStatus(err);
 		}
 		switch(v) {
 		case CL_NONE: printf("Global Memory does not have Cache \n"); break;
@@ -192,12 +165,14 @@ extern int listDeviceInfo(cl_device_id device){
 		cl_int err = clGetDeviceInfo(device, CL_DEVICE_LOCAL_MEM_TYPE, sizeof(cl_device_local_mem_type), &v, NULL);
 		if(CL_SUCCESS != err){
 			checkCLError(err);
-			return -1;
+			return pblMapOCLErrorToPBLStatus(err);
 		}
-		switch(v) {
-		case CL_LOCAL: printf("Device has Dedicate Local Memory\n"); break;
-		case CL_GLOBAL : printf("Local Memory uses Global Memory\n"); break;
-		}
+        switch(v) {
+            case CL_LOCAL: printf("Device has Dedicate Local Memory\n"); break;
+            case CL_GLOBAL : printf("Local Memory uses Global Memory\n"); break;
+            default:
+                             printMessage("error");
+        }
 	}
 
 	printf("...................CU Information...........................\n");
@@ -216,7 +191,7 @@ extern int listDeviceInfo(cl_device_id device){
 		cl_int err = clGetDeviceInfo(device, CL_DEVICE_MAX_WORK_ITEM_SIZES, sizeof(size_t)*3, &v, NULL);
 		if(CL_SUCCESS != err){
 			checkCLError(err);
-			return -1;
+			return pblMapOCLErrorToPBLStatus(err);
 		}
 		printf("Max Work Item size : %ld %ld %ld\n", v[0], v[1], v[2]);
 	}

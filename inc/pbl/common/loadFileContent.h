@@ -22,45 +22,26 @@
  * @warning please free the memory allocated in this function
  *
  */
-extern "C" int loadFileContent(const char *filename, char** s, size_t* length){
-	if(NULL != *s) {
-		printMessage("please don't allocate memory for s\n");
-		return -1;
-	}
-
-	if((NULL == filename) || (0 == strlen(filename))){
-		printMessage("please specify file name\n");
-		return -1;
-	}
+extern "C" PBLStatus_t loadFileContent(const char *filename, char** s, size_t* length){
+	if((NULL != *s) || (NULL == filename) || (0 == strlen(filename)) ) return PBL_BAD_PARAM;
 
 	FILE *fp = fopen(filename, "rb");
-	if(NULL == fp){
-		printMessage("failed to load file ");
-		printf("%s\n", filename);
-		return -1;
-	}
+	if(NULL == fp) return PBL_FAIL_TO_OPEN_FILE;
+
 	rewind(fp);
-	if(0 != fseek(fp, 0, SEEK_END)){
-		printMessage("failed to go to the end of file ");
-		printf("%s\n", filename);
-		return -1;
-	} 
+	if(0 != fseek(fp, 0, SEEK_END)) return PBL_FAIL_TO_SEEK_END;
 
 	int len = ftell(fp);
 	if(NULL != length) *length = len;
 
 	char* str = (char*) malloc(len+1);
-	if(NULL == str){
-		printMessage("failed to malloc space\n");
-		return -1;
-	}
+	if(NULL == str) return PBL_FAIL_TO_ALLOC;
 
 	rewind(fp);
 
 	if(1 != fread(str, len, 1, fp)){
 		free(str);
-		printMessage("failed to read data\n");
-		return -1;
+		return PBL_FAIL_TO_READ_DATA;
 	}
 	str[len] = '\0';
 
@@ -68,7 +49,7 @@ extern "C" int loadFileContent(const char *filename, char** s, size_t* length){
 
 	fclose(fp);
 
-	return 0;
+	return PBL_SUCCESS;
 }
 
 #endif

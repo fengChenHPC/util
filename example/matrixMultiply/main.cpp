@@ -44,7 +44,7 @@ int main(int argc, char* argv[]){
 
 	char* source = NULL;
 	size_t srcLen;
-	const char* filename = "dropoutForward.cl";
+	const char* filename = "naive.cl";
 	if(PBL_SUCCESS != loadFileContent(filename, &source, &srcLen)){
 		free(devices);
 		free(platforms);
@@ -62,7 +62,7 @@ int main(int argc, char* argv[]){
 		return 0;
 	}
 
-	const char* kernelName = "dropoutForward";
+	const char* kernelName = "matrixMultiplyNaiveKernel";
 	cl_kernel kernel;
     err = pblOCLCreateKernel(program, kernelName, &kernel);
 	if(CL_SUCCESS != err){

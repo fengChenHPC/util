@@ -5,6 +5,8 @@ extern "C" PBLStatus_t pblOCLCreateKernel(cl_program program, const char* kernel
     int err;
     *kernel = clCreateKernel(program, kernelName, &err);
 
+    if(CL_SUCCESS != err) checkCLError(err);
+
     return pblMapOCLErrorToPBLStatus(err);
 }
 

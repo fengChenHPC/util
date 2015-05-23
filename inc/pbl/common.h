@@ -21,10 +21,14 @@ void pblCheckError(PBLStatus_t status) {
     return ;
 }
 
+#ifdef PBL_USE_OPENCL
+#include <CL/cl.h>
 //TODO
 PBLStatus_t pblMapOCLErrorToPBLStatus(int err) {
-    if(0 != err) return PBL_UNKOWN_ERROR;
+    if(CL_SUCCESS != err) return PBL_UNKOWN_ERROR;
+    return PBL_SUCCESS;
 }
+#endif
 
 #include "common/loadFileContent.h"
 

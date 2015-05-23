@@ -23,5 +23,6 @@
 #include "oclutil/oclContext.h"
 #include "oclutil/oclKernel.h"
 #include "oclutil/oclCommandQueue.h"
+#include "oclutil/oclBuffer.h"
 
 #endif

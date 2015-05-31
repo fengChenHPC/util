@@ -1,7 +1,12 @@
 #include "pbl.h"
 
 int main(int argc, char* argv[]){
-	PBLStatus_t err;
+    int m = 2048;
+    if(argc > 1) m = atoi(argv[1]);
+    int n = 2048;
+    if(argc > 2) n = atoi(argv[2]);
+    int k = 2048;
+    if(argc > 3) k = atoi(argv[3]);
 
 	// Get OpenCL platform count
 	cl_uint numPlatforms; 
@@ -44,7 +49,7 @@ int main(int argc, char* argv[]){
 
 	char* source = NULL;
 	size_t srcLen;
-	const char* filename = "dropoutForward.cl";
+	const char* filename = "naive.cl";
 	if(PBL_SUCCESS != loadFileContent(filename, &source, &srcLen)){
 		free(devices);
 		free(platforms);
@@ -62,10 +67,9 @@ int main(int argc, char* argv[]){
 		return 0;
 	}
 
-	const char* kernelName = "dropoutForward";
+	const char* kernelName = "matrixMultiplyNaiveKernel";
 	cl_kernel kernel;
-    err = pblOCLCreateKernel(program, kernelName, &kernel);
-	if(CL_SUCCESS != err){
+	if(CL_SUCCESS != pblOCLCreateKernel(program, kernelName, &kernel)) {
 		free(source);
 		free(devices);
 		free(platforms);
@@ -74,7 +78,13 @@ int main(int argc, char* argv[]){
 	}
 
 	cl_command_queue commandQueue;
-    err = pblOCLCreateCommandQueue(cont, devices[0], CL_QUEUE_PROFILING_ENABLE, &commandQueue);
+    if(PBL_SUCCESS != pblOCLCreateCommandQueue(cont, devices[0], CL_QUEUE_PROFILING_ENABLE, &commandQueue)) {
+        free(source);
+        free(devices);
+        free(platforms);
+        //checkPBLError(err);
+        return 0;
+    }
 
 //	cl_mem buf = clCreateBuffer(cont, CL_MEM_READ_ONLY, size*sizeof(float), NULL, NULL);
 //	err = clEnqueueWriteBuffer(commandQueue, buf, CL_TRUE, 0, sizeof(float) * size, host, 0, NULL, NULL);

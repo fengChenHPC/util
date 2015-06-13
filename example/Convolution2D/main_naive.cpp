@@ -137,7 +137,7 @@ int main(int argc, char* argv[]){
 
     double st = getMillSecond();
     for(int i = 0; i < iter; i++) {
-    assert(CL_SUCCESS == clEnqueueNDRangeKernel(commandQueue, kernel, 2, NULL, global_work_size, local_work_size, 0, NULL, &event));
+    assert(CL_SUCCESS == clEnqueueNDRangeKernel(commandQueue, kernel, 2, NULL, global_work_size, local_work_size, 0, NULL, NULL));
     assert(CL_SUCCESS == clFinish(commandQueue));
     }
     double et = getMillSecond();
@@ -146,10 +146,10 @@ printf("%.3f ms\n", time);
 
     size = (numRows-4)*(numCols-4);
     float *h_out = (float*) malloc(size*sizeof(float));
-    assert(CL_SUCCESS == clEnqueueReadBuffer(commandQueue, out, CL_TRUE, 0, sizeof(float) * size, h_out, 1, &event, NULL));
-    //for(int i = 0; i < size; i++) printf("%.3f\n", h_out[i]);
+    assert(CL_SUCCESS == clEnqueueReadBuffer(commandQueue, out, CL_TRUE, 0, sizeof(float) * size, h_out, 0, NULL, NULL));
+    for(int i = 0; i < size; i++) printf("%.3f\n", h_out[i]);
 
-    clReleaseEvent(event);
+//    clReleaseEvent(event);
     clReleaseMemObject(in);
     clReleaseMemObject(filter);
     clReleaseMemObject(out);
